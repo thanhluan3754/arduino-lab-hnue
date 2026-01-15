@@ -5,7 +5,7 @@ Bai 2-2: Lap trinh dieu khien mo dun 4 led 7 doan:
 + Hien thi cac so tu nhien tu 0 den 9999, do tre 0.3s.
 + Hien thi cac so chan tu 0 den 9998, do tre 0.3s.
 
-Cathode Chung Module 4 LED 7 Doan
+Anode Chung Module 4 LED 7 Doan
 Ma: "5461BS-1"
 */
 
