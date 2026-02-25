@@ -1,0 +1,160 @@
+ROBOT ĐIỀU KHIỂN BLUETOOTH
+ESP32 + L298N + 2 ĐỘNG CƠ DC
+----------------------------
+
+MỤC LỤC
+
+1. Giới thiệu
+2. Phần cứng sử dụng
+3. Sơ đồ đấu nối
+4. Sơ đồ tổng thể (ASCII)
+5. Bảng lệnh điều khiển
+6. Nguyên lý hoạt động
+7. Hướng dẫn nâng cao (PWM – chống nhiễu – lưu ý nguồn)
+
+---
+
+1. GIỚI THIỆU
+
+Dự án robot điều khiển từ xa bằng Bluetooth sử dụng ESP32 và module driver L298N để điều khiển 2 động cơ DC.
+
+ESP32 nhận lệnh từ điện thoại → xử lý → điều khiển động cơ quay theo hướng mong muốn.
+
+---
+
+2. PHẦN CỨNG SỬ DỤNG
+
+* ESP32 (loại 30 chân hoặc 38 chân)
+* Module L298N
+* 2 động cơ DC 3V–6V (motor vàng)
+* 2–3 pin 18650 nối tiếp
+* Điện thoại có Bluetooth
+
+---
+
+3. SƠ ĐỒ ĐẤU NỐI
+
+A. ESP32 → L298N
+
+GPIO 26  → IN1   (Motor trái)
+GPIO 27  → IN2   (Motor trái)
+GPIO 14  → IN3   (Motor phải)
+GPIO 12  → IN4   (Motor phải)
+
+B. Động cơ → L298N
+
+OUT1 + OUT2 → Động cơ trái
+OUT3 + OUT4 → Động cơ phải
+
+C. Nguồn điện
+
+Pin (+)  → VMS (12V) trên L298N
+Pin (−)  → GND trên L298N
+
+GND ESP32 → GND L298N  (BẮT BUỘC nối chung mass)
+
+ESP32 cấp nguồn bằng:
+
+* Cáp USB
+  HOẶC
+* Chân VIN (nếu dùng nguồn ngoài phù hợp)
+
+---
+
+4. SƠ ĐỒ TỔNG THỂ (ASCII)
+
+   ```
+    +-------------------+
+    |       ESP32       |
+    |                   |
+    | 26 ---- IN1       |
+    | 27 ---- IN2       |
+    | 14 ---- IN3       |
+    | 12 ---- IN4       |
+    | GND ---- GND -----+----------------+
+    +-------------------+                |
+                                         |
+                                  +-------------+
+   ```
+
+Pin +  ----------------------------> |    L298N    |
+Pin -  ----------------------------> |    GND      |
+|             |
+OUT1 ------- |             | ------- OUT3
+OUT2 ------- |             | ------- OUT4
++-------------+
+|     |
+|     |
+Motor T  Motor P
+
+---
+
+5. BẢNG LỆNH ĐIỀU KHIỂN
+
+Ký tự gửi qua Bluetooth:
+
+'f'  → Tiến
+'b'  → Lùi
+'l'  → Rẽ trái
+'r'  → Rẽ phải
+'s'  → Dừng
+
+Tên Bluetooth: LUAN SPKT 01
+
+---
+
+6. NGUYÊN LÝ HOẠT ĐỘNG
+
+* Điện thoại gửi ký tự qua Bluetooth.
+* ESP32 nhận dữ liệu bằng BluetoothSerial.
+* Tùy theo ký tự nhận được, ESP32 xuất mức HIGH/LOW
+  ra các chân IN1–IN4.
+* L298N điều khiển chiều quay động cơ.
+* Robot di chuyển theo hướng tương ứng.
+
+---
+
+7. HƯỚNG DẪN NÂNG CAO
+
+7.1 Điều khiển tốc độ bằng PWM
+
+Hiện tại jumper ENA và ENB đang được giữ nguyên
+→ động cơ chạy tối đa.
+
+Nếu muốn điều chỉnh tốc độ:
+
+* Tháo jumper ENA và ENB
+* Nối ENA, ENB vào chân PWM của ESP32
+* Sử dụng ledcWrite() để điều chỉnh tốc độ
+
+7.2 Lưu ý về nguồn
+
+* Không cấp quá 12V vào L298N.
+* Nếu dùng 3 pin 18650 nối tiếp (~12.6V đầy pin)
+  thì vẫn dùng được.
+* Đảm bảo nối chung GND giữa ESP32 và L298N.
+* Nếu ESP32 bị reset khi motor quay:
+  → Pin yếu hoặc sụt áp.
+  → Nên dùng pin dòng xả cao (5C trở lên).
+
+7.3 Giảm nhiễu
+
+* Nên hàn tụ 100nF song song hai cực motor.
+* Dây nguồn nên ngắn và đủ lớn.
+* Không cấp nguồn ESP32 chung trực tiếp từ
+  chân 5V của L298N nếu nguồn yếu.
+
+---
+
+KẾT LUẬN
+
+Hệ thống hoạt động dựa trên giao tiếp Bluetooth
+và điều khiển driver cầu H L298N.
+Có thể mở rộng thêm:
+
+* Điều khiển tốc độ
+* Điều khiển bằng app riêng
+* Thêm cảm biến tránh vật cản
+* Chế độ tự động
+
+#Nguyễn_Thành_Luân

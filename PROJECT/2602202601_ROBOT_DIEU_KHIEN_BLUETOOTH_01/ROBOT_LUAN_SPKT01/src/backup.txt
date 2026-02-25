@@ -1,0 +1,94 @@
+#include <Arduino.h>
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+void stopMotor();
+
+#define IN1 26
+#define IN2 27
+#define IN3 14
+#define IN4 12
+
+void setup()
+{
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  stopMotor();
+
+  Serial.begin(115200);
+  SerialBT.begin("LUAN SPKT 01");
+}
+
+void forward()
+{
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void backward()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void left()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void right()
+{
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void stopMotor()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void loop()
+{
+  if (SerialBT.available())
+  {
+    char cmd = SerialBT.read();
+
+    if (cmd == '\n' || cmd == '\r')
+      return;
+
+    Serial.println(cmd);
+
+    switch (cmd)
+    {
+    case 'f':
+      forward();
+      break;
+    case 'b':
+      backward();
+      break;
+    case 'l':
+      left();
+      break;
+    case 'r':
+      right();
+      break;
+    case 's':
+      stopMotor();
+      break;
+    }
+  }
+}
